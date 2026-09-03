@@ -19,7 +19,7 @@ sen.enviarCal(0, desfase, invertido)
 
 # %% Mover Motor y leer Sensor
 
-mot.enviarPosArt([0,  -4*PI - (3/4)*PI])   
+mot.mover([0,  -4*PI - (3/4)*PI])   
 
 while True:
     if keyboard.is_pressed('space'): # Presiona espacio para terminar el programa
