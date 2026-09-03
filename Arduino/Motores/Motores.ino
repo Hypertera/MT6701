@@ -1,19 +1,9 @@
 #include <AccelStepper.h>
-
-const int senNum = 2; // Número de sensores
-
 enum Comandos{
-    CMD_VEL = 3,
-    CMD_MOVE = 4,
-    CMD_PARO = 5
+    CMD_MOVE = 3
 };
 
 // Datos para recibir y mandar comandos
-struct __attribute__((packed)) VelPacket
-{
-    int16_t vel[senNum];
-}; VelPacket velData;
-
 struct __attribute__((packed)) MovePacket
 {
     int16_t pasos[senNum];
@@ -70,17 +60,7 @@ void comandos(){
 
       uint8_t cmd = Serial.read();
 
-      if (cmd == CMD_VEL){
-
-        Serial.readBytes((char*)&velData, sizeof(velData));
-
-        int v1 = velData.vel[0];
-        int v2 = velData.vel[1];
-
-        motorX.setSpeed(v1);
-        motorY.setSpeed(v2);
-
-      }else if (cmd == CMD_MOVE){
+      if (cmd == CMD_MOVE){
 
         Serial.readBytes((char*)&moveData, sizeof(moveData));
 
@@ -103,11 +83,6 @@ void comandos(){
 
         }
 
-      }else if (cmd == CMD_PARO){
-        motorX.stop();
-        motorY.stop();
-        motorX.setSpeed(0);
-        motorY.setSpeed(0);
       }
 
     }
