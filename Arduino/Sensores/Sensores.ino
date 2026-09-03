@@ -7,7 +7,6 @@ const int senNum = 2; // Número de sensores
 enum Comandos{
     CMD_POS = 1,
     CMD_CAL = 2,
-    CMD_RESET_TURNS = 3,
 };
 
 // Datos del sensor y calibración
@@ -31,12 +30,6 @@ struct __attribute__((packed)) CalPacket
     float desfase;
     bool dir;
 }; CalPacket cal;
-
-struct __attribute__((packed)) EstPacket
-{
-    uint8_t encabezado = 0xAA;
-    bool est[senNum];
-}; EstPacket estData;
 
 struct __attribute__((packed)) AfirmPacket
 {
@@ -93,13 +86,13 @@ float obtenerAngulo(int canal) {
 
 void angCorrec(float anguloCrudo, int N){
 
-  // correccion del angulo de inicio
+  // Corrección del angulo de inicio
   anguloCrudo = anguloCrudo - Sensor[N].desfase;
   if (anguloCrudo<0){
       anguloCrudo = anguloCrudo + 360;
     }
 
-    // cambiar direccion de giro
+    // Cambiar dirección de giro
     if (Sensor[N].dir && anguloCrudo !=0){
       Sensor[N].angulo =  360.0 - anguloCrudo;
     }
@@ -110,7 +103,7 @@ void angCorrec(float anguloCrudo, int N){
 
 void angTotal(int N){
 
-  // determinar cuadrante
+  // Determinar cuadrante
   if (Sensor[N].angulo>=0 && Sensor[N].angulo<=90){
     Sensor[N].cuadranteActl = 1;
   }
@@ -124,7 +117,7 @@ void angTotal(int N){
     Sensor[N].cuadranteActl = 4;
   }
 
-  // determinar el cambio de cuadrante y aumentar num de vueltas
+  // Determinar el cambio de cuadrante y aumentar num de vueltas
   if (Sensor[N].cuadranteActl != Sensor[N].cuadranteAnt){
     if(Sensor[N].cuadranteActl == 1 && Sensor[N].cuadranteAnt == 4){
         Sensor[N].vueltas++;
@@ -135,7 +128,7 @@ void angTotal(int N){
       Sensor[N].cuadranteAnt = Sensor[N].cuadranteActl;
   }
 
-  // calcular angulo total
+  // Calcular ángulo total
   Sensor[N].angulo = (Sensor[N].vueltas*360) + Sensor[N].angulo;
 }
 
@@ -154,9 +147,6 @@ void comandos(){
           angTotal(i);
           angData.ang[i] = Sensor[i].angulo;
         }
-
-        //angData.ang1 = Sensor[0].angulo;
-        //angData.ang2 = Sensor[1].angulo;
 
         Serial.write((char*)&angData, sizeof(angData));
 
@@ -184,13 +174,7 @@ void comandos(){
         afirm.val = a;
         Serial.write((uint8_t*)&afirm, sizeof(afirm));
 
-      }else if (cmd == CMD_RESET_TURNS){
-        for (int i=0; i<senNum; i++){
-          Sensor[i].vueltas = 0;
-        }
-
-        Serial.write((uint8_t*)&estData, sizeof(estData));
-      } 
+      }
 
     }
 
